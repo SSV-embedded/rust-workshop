@@ -2,24 +2,36 @@
 
 extern crate alloc;
 
-pub mod rainbow;
 pub mod led;
 pub mod net;
+pub mod rainbow;
+pub mod rtos;
 
-use esp_alloc::heap_allocator;
-use esp_hal::{
-    interrupt::software::SoftwareInterruptControl,
-    peripherals::{SW_INTERRUPT, TIMG0},
-    timer::timg::TimerGroup,
-};
+/* === YOUR CHANGES DOWN BELOW! DON'T TOUCH THE CODE ABOVE! === */
 
-/// Helper for starting the ESP RTOS for global timing and the network stack.
-pub fn start_rtos(timer: TIMG0<'static>, sw_int: SW_INTERRUPT<'static>) {
-    // Prepare heap memeory
-    heap_allocator!(#[esp_hal::ram(reclaimed)] size: 65536);
+use embassy_futures::select::{Either, select};
 
-    // Start RTOS for WIFI stack
-    let timg0 = TimerGroup::new(timer);
-    let sw_interrupt = SoftwareInterruptControl::new(sw_int);
-    esp_rtos::start(timg0.timer0, sw_interrupt.software_interrupt0);
+/// Application ... this is your playground!
+pub async fn main(spawner: embassy_executor::Spawner, peripherals: esp_hal::peripherals::Peripherals) {
+    // Start RTOS
+    rtos::start(peripherals.TIMG0, peripherals.SW_INTERRUPT);
+
+    // Start network stack
+    let key = b"CHANGEMECHANGEMECHANGEMECHANGEME";
+    let (net_rx, net_tx) = net::start_net::<u16>(&spawner, peripherals.WIFI, &key);
+
+    // Start animation
+    let led = led::Led::new(peripherals.SPI2, peripherals.GPIO8);
+    let (hue_reporter, hue_adjuster) = rainbow::start_animation(&spawner, led);
+
+    loop {
+        match select(net_rx.recv(), hue_reporter.recv()).await {
+            Either::First(hue) => {
+                hue_adjuster.adjust(hue).await;
+            }
+            Either::Second(hue) => {
+                net_tx.send(hue).await;
+            }
+        }
+    }
 }

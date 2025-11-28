@@ -11,21 +11,13 @@
 //! use embassy_time::{Ticker, Duration};
 //! use embassy_futures::select::{Either, select};
 //! 
-//! #[esp_rtos::main]
-//! async fn main(spawner: embassy_executor::Spawner) -> ! {
-//!     // Init debug outputs via RTT
-//!     rtt_target::rtt_init_defmt!();
-//!     
-//!     // Init SoC
-//!     let config = esp_hal::Config::default().with_cpu_clock(esp_hal::clock::CpuClock::max());
-//!     let peripherals = esp_hal::init(config);
-//! 
+//! pub async fn main(spawner: embassy_executor::Spawner, peripherals: esp_hal::peripherals::Peripherals) {
 //!     // Start RTOS for time driver
-//!     rust_demo::start_rtos(peripherals.TIMG0, peripherals.SW_INTERRUPT);
+//!     rtos::start(peripherals.TIMG0, peripherals.SW_INTERRUPT);
 //! 
 //!     // Init the network stack
 //!     let key = b"CHANGEMECHANGEMECHANGEMECHANGEME"; // This is the shared network secret!
-//!     let (net_rx, net_tx) = rust_demo::net::start_net(&spawner, peripherals.WIFI, &key);
+//!     let (net_rx, net_tx) = net::start_net(&spawner, peripherals.WIFI, &key);
 //! 
 //!     // Init the message ticker
 //!     let mut tick = Ticker::every(Duration::from_secs(1));

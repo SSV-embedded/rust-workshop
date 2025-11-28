@@ -5,20 +5,12 @@
 //! ```rust
 //! use embassy_time::{Timer, Duration};
 //! 
-//! #[esp_rtos::main]
-//! async fn main(spawner: embassy_executor::Spawner) -> ! {
-//!     // Init debug outputs via RTT
-//!     rtt_target::rtt_init_defmt!();
-//!     
-//!     // Init SoC
-//!     let config = esp_hal::Config::default().with_cpu_clock(esp_hal::clock::CpuClock::max());
-//!     let peripherals = esp_hal::init(config);
-//! 
+//! pub async fn main(spawner: embassy_executor::Spawner, peripherals: esp_hal::peripherals::Peripherals) {
 //!     // Start RTOS for time driver
-//!     rust_demo::start_rtos(peripherals.TIMG0, peripherals.SW_INTERRUPT);
+//!     rtos::start(peripherals.TIMG0, peripherals.SW_INTERRUPT);
 //! 
 //!     // Init the LED on GPIO 8 driven by the SPI2 peripheral
-//!     let led = rust_demo::led::Led::new(peripherals.SPI2, peripherals.GPIO8);
+//!     let led = led::Led::new(peripherals.SPI2, peripherals.GPIO8);
 //! 
 //!     loop {
 //!         // Set the color to red
