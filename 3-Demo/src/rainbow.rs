@@ -1,7 +1,7 @@
 //! # Rainbow Animation Driver
-//! 
+//!
 //! Displays a rainbow effect on a given [crate::led::Led] instance.
-//! 
+//!
 //! It exposes a [HueReporter] which outputs the current LED's hue every second and a [HueAdjuster] to adjust the current animation hue.
 
 use crate::led::Led;
@@ -43,7 +43,7 @@ async fn rainbow_animation_task(
                 hue += SPEED;
             }
             Either3::Second(_) => {
-                hue_updates_out.send(hue.0).await;
+                let _ = hue_updates_out.try_send(hue.0);
             }
             Either3::Third(other_hue) => {
                 let diff = Wrapping(other_hue) - hue;
@@ -106,7 +106,11 @@ impl HueReporter {
 }
 
 /// Starts a rainbow animation on `led`.
-pub fn start_animation(spawner: &Spawner, led: &'static mut Led) -> (HueReporter, HueAdjuster) {
+pub fn start_animation(spawner: &Spawner, led: Led) -> (HueReporter, HueAdjuster) {
+    let led = {
+        static CELL: StaticCell<Led> = StaticCell::new();
+        CELL.init(led)
+    };
     let hue_updates_out = {
         static CELL: StaticCell<Channel<CriticalSectionRawMutex, u16, 1>> = StaticCell::new();
         CELL.init(Channel::new())

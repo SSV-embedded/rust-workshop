@@ -1,27 +1,27 @@
 //! # ESP-NOW Network Driver
-//! 
+//!
 //! This driver allows broadcasting info via the ESP-NOW ad-hoc network.
-//! 
+//!
 //! The datagrams are encrypted using AES-256-CCM but may be replayed!
 //! Don't use this crypto for productive systems!
-//! 
+//!
 //! Example for starting the network:
-//! 
+//!
 //! ```rust
 //! use embassy_time::{Ticker, Duration};
 //! use embassy_futures::select::{Either, select};
-//! 
+//!
 //! pub async fn main(spawner: embassy_executor::Spawner, peripherals: esp_hal::peripherals::Peripherals) {
 //!     // Start RTOS for time driver
 //!     rtos::start(peripherals.TIMG0, peripherals.SW_INTERRUPT);
-//! 
+//!
 //!     // Init the network stack
-//!     let key = b"CHANGEMECHANGEMECHANGEMECHANGEME"; // This is the shared network secret!
-//!     let (net_rx, net_tx) = net::start_net(&spawner, peripherals.WIFI, &key);
-//! 
+//!     let secret = b"Change me!"; // This is the shared network secret!
+//!     let (net_rx, net_tx) = net::start_net(&spawner, peripherals.WIFI, secret);
+//!
 //!     // Init the message ticker
 //!     let mut tick = Ticker::every(Duration::from_secs(1));
-//! 
+//!
 //!     let msg = b"hello";
 //!     loop {
 //!         match select(net_rx.recv(), tick.next()).await {
@@ -165,14 +165,14 @@ impl<T: Serialize> NetTx<T> {
 }
 
 /// Starts the network stack.
-/// 
+///
 /// - `spawner` is a [embassy_executor::Spawner] which will be used to start the internal networking task
 /// - `wifi` is the WIFI peripheral
-/// - `key` is the shared secret and must be the same for all network nodes.
+/// - `secret` is the shared secret and must be the same for all network nodes.
 pub fn start_net<T: DeserializeOwned + Serialize>(
     spawner: &Spawner,
     wifi: WIFI<'static>,
-    key: &[u8; 32],
+    secret: &[u8],
 ) -> (NetRx<T>, NetTx<T>) {
     let tx = {
         static CELL: StaticCell<Channel<CriticalSectionRawMutex, Vec<u8>, 1>> = StaticCell::new();
@@ -185,7 +185,12 @@ pub fn start_net<T: DeserializeOwned + Serialize>(
         CELL.init(Channel::new())
     };
 
-    let key = Key::<Aes256>::from_slice(key);
+    let mut key = [0u8; 32];
+    let key = {
+        let copy_len = key.len().min(secret.len());
+        key[..copy_len].copy_from_slice(&secret[..copy_len]);
+        Key::<Aes256>::from_slice(&key)
+    };
 
     let key = {
         static CELL: StaticCell<Aes256Ccm> = StaticCell::new();

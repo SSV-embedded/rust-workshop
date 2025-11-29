@@ -1,3 +1,5 @@
+//! # RTOS for wifi stack and timers
+
 use esp_alloc::heap_allocator;
 use esp_hal::{
     interrupt::software::SoftwareInterruptControl,
