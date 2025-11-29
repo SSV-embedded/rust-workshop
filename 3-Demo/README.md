@@ -22,60 +22,89 @@ Den eigentlichen Code schreiben Sie in der Datei `3-Demo/src/lib.rs`.
 
 ### Entwicklungsumgebung einrichten
 
-1. Schließen Sie das bereitgestellte DevBoard an Ihr Laptopn an.
-2. *Nur Windows*: Weisen Sie dem USB-Gerät den richtigen Treiber zu:
+1. Schließen Sie das bereitgestellte DevBoard an Ihr Laptop an.
+2. **Nur Windows:** Weisen Sie dem USB-Gerät den richtigen Treiber zu:
    * [zadig](https://github.com/pbatard/libwdi/releases/download/v1.5.1/zadig-2.9.exe) starten
-   * `Options` -> `List All Devices` aktivieren
-   * `USB JTAG/serial debug unit (Interface 2)` aus der Liste auswählen
-   * Der Button in der Mitte hat ein Drop-Down über das kleine Dreieck. Hier die Aktion `Install Driver` auswählen. Der Button verändert seine Beschriftung auf `Replace Driver`.
-   * Die Aktion `Replace Driver` per Klick auf den Button ausführen
-3. Öffnen Sie in VS Code ein Terminal im Pfad `3-Demo`.
-4. `cargo run` ausführen. Der Code wird übersetzt, geflasht und zur Ausführung gebracht. `src/lib.rs` enthält den Code, der `"Hallo Workshop!"` ausgibt. Das Logging wird per `[Strg] + [C]` beendet.
-5. `cargo doc` ausführen. Dieser Aufruf dokumentiert sämtlichen Code. Dieser Vorgang kann etwas Zeit in Anspruch nehmen, da auch alle zum Projekt gehörigen Libraries dokumentiert werden. Am Ende des Vorgangs wird ein Link angezeigt. Öffnen Sie diesen mit Ihrem Browser. (Hinweis für die Teilnehmer, die auf dem Code-Server arbeiten: Das Kommando `doc-link` gibt einen Link aus, den Sie mit Ihrem Browser öffnen können.)
+   * **Options** → **List All Devices** aktivieren
+   * **USB JTAG/serial debug unit (Interface 2)** auswählen
+   * Im Drop-down des mittleren Buttons die Aktion **Install Driver** auswählen. Der Button zeigt danach **Replace Driver** an.
+   * Mit **Replace Driver** den Treiber installieren.
+3. Öffnen Sie in VS Code ein Terminal im Verzeichnis `3-Demo`.
+4. Führen Sie `cargo run` aus. Der Code wird kompiliert, geflasht und gestartet. In `src/lib.rs` befindet sich der Beispielcode, der *"Hallo Workshop!"* ausgibt.
+   Beenden Sie das Logging mit **Strg + C**.
+5. Führen Sie `cargo doc` aus. Dadurch wird der gesamte Projektcode dokumentiert, einschließlich aller eingebundenen Bibliotheken. Dies kann etwas Zeit dauern.
+   Am Ende erscheint ein Link zur lokal erzeugten Dokumentation. Öffnen Sie diesen im Browser.
+   *(Hinweis für Teilnehmende mit Code-Server: Das Kommando `doc-link` gibt einen direkt nutzbaren Link aus.)*
 
 ### LED Blinky
 
-Ziel dieser Übung ist die On-Board-LED zum Blinken zu bekommen.
+Ziel dieser Übung ist es, die Onboard-LED zum Blinken zu bringen.
 
-Die vorherigen Kapitel geöffnete Dokumentation enthält das Modul `led`. Mit einem Klick darauf öffnet sich ein Beispiel-Code zum `Led`-Modul.
+Die zuvor erzeugte Dokumentation enthält das Modul `led`. Ein Klick darauf zeigt Beispielcode zur Nutzung des `Led`-Moduls.
 
-**Aufgabe 1-1:** Kopieren Sie den Code in die `src/lib.rs` unter Berücksichtung des Hinweises innerhalb der Datei, den oberen Teil unberührt zu lassen. Führen Sie den Code aus und prüfen Sie das Blinken der LED.
+**Aufgabe 1-1:**
+Kopieren Sie den Beispielcode in `src/lib.rs` – beachten Sie dabei den Hinweis am Anfang der Datei, bestimmte Bereiche unverändert zu lassen.
+Führen Sie den Code aus und prüfen Sie, ob die LED blinkt.
 
-**Aufgabe 1-2:** Verändern Sie den Code, sodass das Blinken doppelt so schnell abläuft. Hinweis: Die `Duration` hat eine passende Methode, um Millisekunden anzugeben. Der Language-Server wird Ihnen helfen diese zu finden.
+**Aufgabe 1-2:**
+Passen Sie den Code so an, dass die LED doppelt so schnell blinkt.
+*Hinweis:* Die `Duration`-Struktur besitzt eine Methode zur Angabe von Millisekunden; der Language Server hilft Ihnen beim Auffinden.
 
-**Sonder-Aufgabe 1-3:** *... für die schnellen ...* Starten Sie die Animation erst, wenn der Taster **BOOT** auf dem DevBoard gedrückt wird. Gemäß der folgenden Pinout-Übersicht ist er an `GPIO9` angebunden. Der Dokumentation des DevBoards entnimmt man, dass der Taster den Pin auf GND zieht. Hinweise zur implementierung:
-* `esp_hal::gpio::Input` ist ein geeingeter Treiber, um GPIOs einzulesen
-* Der Pin muss als `Pull::Up` konfiguriert werden
+**Sonder-Aufgabe 1-3:** *(für die Schnellen)*
+Starten Sie die Animation erst, wenn der **BOOT**-Taster auf dem DevBoard gedrückt wird. Laut Pinout ist dieser an **GPIO9** angeschlossen und zieht den Pin beim Drücken auf GND.
+Hinweise zur Implementierung:
+* `esp_hal::gpio::Input` ist ein geeigneter Treibertyp zum Einlesen von GPIOs.
+* Der Pin muss als `Pull::Up` konfiguriert werden.
 
 ![Pinout](./docs/pinout.png)
 
 ### LED Regenbogen-Animation
 
-Ziel dieser Übung ist die On-Board-LED eine Regenbogen-Animation ausführen zu lassen.
+Ziel dieser Übung ist es, die Onboard-LED eine Regenbogen-Animation ausführen zu lassen.
 
-Die erzeugte Dokumentation enthält das Modul `rainbow`. Damit kann auf einer `Led` eine Regenboden-Animation dargestellt werden.
+Die Dokumentation enthält das Modul `rainbow`, mit dem sich eine Regenbogen-Animation auf einer `Led` darstellen lässt.
 
-**Aufgabe 2-1:** Starten Sie die Animation durch den Aufruf von `rainbow::start_animation()` unter angabe passender Parameter. Hinweise: Das Argument `spawner` ermöglicht der Funktion einen eigenen Task für die Animation zu starten.
+**Aufgabe 2-1:**
+Starten Sie die Animation mit `rainbow::start_animation()` und übergeben Sie die passenden Parameter.
+*Hinweis:* Das Argument `spawner` ermöglicht es der Funktion, die Animation in einem eigenen Task auszuführen.
 
-**Aufgabe 2-2:** Lassen Sie sich durch den `HueReporter`, den `start_animation()` zurück gibt, über die `defmt::info!()`-Logging-Methode den aktuellen Farbton zurück geben. Hinweise: Die Dokumenation vom `HueReporter` stellt eine `asnyc fn` dafür bereit. Um Werte daraus auszulesen, muss sie innerhalb einer Endlosschleife mit dem Zusatz `.await` aufgerufen werden.
+**Aufgabe 2-2:**
+Lassen Sie sich über den `HueReporter`, den `start_animation()` zurückgibt, den aktuellen Farbton per `defmt::info!()` ausgeben.
+*Hinweise:*
+* Der `HueReporter` stellt eine passende `async fn` bereit.
+* Um Werte auszulesen, rufen Sie die Funktion in einer Endlosschleife mit `.await` auf.
+
 
 ### WiFi-Kommunikation
 
-Ziel dieser Übung ist per WiFi Boardcast-Nachrichten zu senden und zu empfangen.
+Ziel dieser Übung ist es, Broadcast-Nachrichten über WiFi zu senden und zu empfangen.
 
-Die erzeugte Dokumentation enthält das Modul `net`. Dieses beinhaltet eine Demo für das Netzwerkmodul.
+Das Modul `net` in der Dokumentation enthält eine Demo für das Netzwerkmodul.
 
-**Aufgabe 3-1:** Kopieren Sie die Demo (und sichern Sie bereits erzeugten Code in einem neuen Editor-Tab) und führen Sie sie aus. Sie sollten die Nachrichten der anderen Workshop-Teilnehmer sehen.
+**Aufgabe 3-1:**
+Kopieren Sie die Demo (und sichern Sie Ihren bisherigen Code in einem neuen Editor-Tab) und führen Sie sie aus.
+Sie sollten nun Nachrichten der anderen Workshop-Teilnehmenden empfangen.
 
-**Aufagbe 3-2:** Tun Sie sich mit 1-2 Ihrer Tischnachbar zusammen und vereinbaren Sie ein neues Secret. Senden Sie sich statt einer Zeichenkette eine Zahl zu. Hinweis: Das Modul kann beliebige Datentypen versenden und empfangen, solang sie über die `serde`-Crate serialisierbar bzw. deserialisierbar sind. Einzige Einschränkung: Alle Netzwerkteilnehmer müssen sich auf denselben Datentyp einigen.
+**Aufgabe 3-2:**
+Schließen Sie sich mit 1–2 Tischnachbarn zusammen und vereinbaren Sie ein neues Secret.
+Senden Sie sich anschließend statt einer Zeichenkette eine Zahl zu.
+*Hinweise:*
+* Das Modul kann beliebige Datentypen senden und empfangen, solange diese über `serde` serialisierbar bzw. deserialisierbar sind.
+* Wichtig: Alle Netzwerk-Knoten müssen denselben Datentyp verwenden.
 
 ### Zusammenbau der finalen Firmware
 
-Die erarbeiteten Programm-Teile aus den vorherigen Kapiteln werden in diesem Kapitel zusammengefügt. Ziel ist es, dass alle DevBoards ihre Animation miteinadner synchroniseren.
+In diesem Kapitel werden die zuvor erarbeiteten Programmteile kombiniert.
+Ziel ist es, dass alle DevBoards ihre Animation miteinander synchronisieren.
 
-**Aufgabe 4-1:** Anstatt feste Werte untereinander auszutauschen, sollen nun `HueReporter` und `HueAdjuster` aus der Animation aus *Aufgabe 2-2* miteinadner kommunzieren. Verändern Sie das Programm so, dass Werte aus dem `HueReporter` per `NetTX` ausgestrahlt werden. Werte, die per `NetRX` empfangen werden sollten dem `HueAdjuster` übergeben werden. Verwenden Sie für die Funk-Kommunikation das von der Workshop-Leitung vorgegebene Secret.
+**Aufgabe 4-1:**
+Anstatt feste Werte zu senden, sollen nun `HueReporter` und `HueAdjuster` aus *Aufgabe 2-2* miteinander kommunizieren.
+Passen Sie das Programm so an, dass Werte aus dem `HueReporter` über `NetTX` ausgesendet werden.
+Empfangene Werte aus `NetRX` sollen an den `HueAdjuster` weitergegeben werden.
+Verwenden Sie das von der Workshop-Leitung bereitgestellte Secret.
 
-**Sonder-Aufgabe 4-2:** *... für die Kongress-Woche...* Lassen Sie Ihr Board laufen und schauen, ob Sie andere Kursteilnehmer in den Pausen anhand der Animation wiederfinden und einen Kaffee gemeinsame trinken :-)
+**Sonder-Aufgabe 4-2:** *(für die Kongress-Woche)*
+Lassen Sie Ihr Board laufen und schauen Sie, ob Sie andere Kursteilnehmende anhand ihrer LED-Animation wiederfinden – vielleicht ergibt sich ein gemeinsamer Kaffee. ☕🙂
 
 <details>
 
@@ -91,7 +120,7 @@ pub async fn main(spawner: Spawner, peripherals: Peripherals) {
 
     // Start network stack
     let key = b"Rust rocks!";
-    let (net_rx, net_tx) = net::start_net::<u16>(&spawner, peripherals.WIFI, &key);
+    let (net_rx, net_tx) = net::start_net::<u16>(&spawner, peripherals.WIFI, key);
 
     // Start animation
     let led = led::Led::new(peripherals.SPI2, peripherals.GPIO8);
