@@ -1,7 +1,5 @@
 # Setup von Toolchain und IDE
 
-Im Folgenden
-
 ## Installation von VS Code unter Windows
 
 1. Laden Sie sich die Installationsdatei herunter: [VS Code Downloads](https://code.visualstudio.com/download) in der Variante "Windows 10/11 User Installer".
@@ -80,3 +78,8 @@ Im Folgenden
    rustup target add riscv32imc-unknown-none-elf
    ```
    Es installiert die Cross-Toolchain für das Devboard.
+
+## Download der Workshop-Unterlagen
+
+Laden Sie die Workshop-Unterlage herunter:
+https://github.com/SSV-embedded/rust-workshop/
