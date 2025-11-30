@@ -24,11 +24,18 @@
 //!
 //!     let msg = b"hello";
 //!     loop {
+//!         // Wait for two events at the same time:
+//!         // 1. a message from the network
+//!         // 2. a tick event from the 1s interval ticker
+//!         // Will return once an event occured.
+//!         // Please note: just the select call must be await'ed!
 //!         match select(net_rx.recv(), tick.next()).await {
 //!             Either::First(msg) => {
+//!                 // ... we got a message from the network!
 //!                 defmt::info!("Received message: {:a}", msg);
 //!             }
 //!             Either::Second(_) => {
+//!                 // ... a tick event occured
 //!                 net_tx.send(msg.clone()).await;
 //!                 defmt::info!("Sent message: {:a}", msg);
 //!             }
